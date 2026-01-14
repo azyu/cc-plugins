@@ -1,6 +1,6 @@
 ---
 description: Review code changes with OpenAI Codex. Use for uncommitted changes, staged files, last commit, or custom review prompts.
-allowed-tools: Bash(codex:*), Bash(which:*)
+allowed-tools: Bash(codex:*), Bash(which:*), Bash(git status:*), Bash(git diff:*)
 ---
 
 Review code changes using OpenAI Codex.
@@ -27,9 +27,14 @@ The user may specify:
    - If user specified `-m <model>`, use that model
    - Otherwise, use default: `-m gpt-5.2-codex -c model_reasoning_effort="high"`
 
-3. Run the appropriate codex command:
-   - For uncommitted/staged/no args: `codex exec review --uncommitted <model_options> --dangerously-bypass-approvals-and-sandbox`
+3. If user didn't specify "last commit":
+   - First check if there are uncommitted changes: `git status --short`
+   - If no uncommitted changes, automatically review the last commit instead
+   - Tell the user: "No uncommitted changes found. Reviewing last commit instead."
+
+4. Run the appropriate codex command:
+   - For uncommitted/staged: `codex exec review --uncommitted <model_options> --dangerously-bypass-approvals-and-sandbox`
    - For last commit: `codex exec review --commit HEAD <model_options> --dangerously-bypass-approvals-and-sandbox`
    - For custom message: `codex exec review --uncommitted "<user's message>" <model_options> --dangerously-bypass-approvals-and-sandbox`
 
-4. Display the review results to the user.
+5. Display the review results to the user.
