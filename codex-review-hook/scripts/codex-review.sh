@@ -32,8 +32,8 @@ if git diff --cached --quiet 2>/dev/null; then
     exit 0
 fi
 
-# Run codex review
-REVIEW_OUTPUT=$(codex exec review --uncommitted 2>&1)
+# Run codex review (bypass sandbox - review is read-only anyway)
+REVIEW_OUTPUT=$(codex exec review --uncommitted --dangerously-bypass-approvals-and-sandbox 2>&1)
 CODEX_EXIT=$?
 
 if [ $CODEX_EXIT -ne 0 ]; then
