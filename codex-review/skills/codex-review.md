@@ -26,9 +26,8 @@ The user may specify what to review:
 ## Example Usage
 
 ```
-/review                    # Review uncommitted changes
-/review uncommitted        # Review uncommitted changes
-/review staged             # Review staged files
-/review last commit        # Review the last commit
-/review --last-commit      # Review the last commit
+/codex-review                    # Review uncommitted changes
+/codex-review uncommitted        # Review uncommitted changes
+/codex-review staged             # Review staged files
+/codex-review last commit        # Review the last commit
 ```
