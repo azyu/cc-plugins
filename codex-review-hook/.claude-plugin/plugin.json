@@ -1,6 +1,6 @@
 {
   "name": "codex-review-hook",
   "description": "Automatically run OpenAI Codex review before git commit",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": { "name": "jinto" }
 }

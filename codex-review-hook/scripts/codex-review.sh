@@ -59,12 +59,8 @@ fi
 # Clean up the comment - remove quotes if wrapped
 REVIEW_COMMENT=$(echo "$REVIEW_COMMENT" | sed 's/^"//;s/"$//')
 
-# Return both system message (for Claude) and message (for user display)
-ESCAPED_COMMENT=$(printf '%s' "$REVIEW_COMMENT" | jq -Rs '.')
-
-cat << EOF
-{
-    "message": "[Codex Review] ${ESCAPED_COMMENT}",
-    "systemMessage": "[codex-review-hook] Code Review:\n\n${ESCAPED_COMMENT}"
-}
-EOF
+# Build proper JSON using jq to handle escaping
+jq -n \
+    --arg msg "[Codex Review] $REVIEW_COMMENT" \
+    --arg sys "[codex-review-hook] Code Review:\n\n$REVIEW_COMMENT" \
+    '{message: $msg, systemMessage: $sys}'
