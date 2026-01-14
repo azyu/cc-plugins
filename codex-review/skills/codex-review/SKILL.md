@@ -2,6 +2,7 @@
 name: codex-review
 description: Review code changes with OpenAI Codex. Use for uncommitted changes, staged files, or last commit.
 allowed-tools: Bash(codex:*), Bash(which:*)
+user-invocable: true
 ---
 
 # Codex Review
