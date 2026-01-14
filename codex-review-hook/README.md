@@ -22,10 +22,10 @@ codex auth
 
 ```bash
 # Add the marketplace
-/plugin marketplace add github:jinto/claude-plugins
+/plugin marketplace add jinto/cc-plugins
 
 # Install this plugin
-/plugin install codex-review-hook@claude-plugins
+/plugin install codex-review-hook@cc-plugins
 ```
 
 ## How It Works

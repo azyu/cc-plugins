@@ -13,13 +13,13 @@ A collection of plugins for Claude Code.
 ### 1. Add this marketplace
 
 ```bash
-/plugin marketplace add github:jinto/claude-plugins
+/plugin marketplace add jinto/cc-plugins
 ```
 
 ### 2. Install a plugin
 
 ```bash
-/plugin install codex-review-hook@claude-plugins
+/plugin install codex-review-hook@cc-plugins
 ```
 
 ## Creating Your Own Plugin
