@@ -1,3 +1,9 @@
+---
+name: codex-review
+description: Review code changes with OpenAI Codex. Use for uncommitted changes, staged files, or last commit.
+allowed-tools: Bash(codex:*), Bash(which:*)
+---
+
 # Codex Review
 
 Run OpenAI Codex to review code changes.
@@ -7,11 +13,15 @@ Run OpenAI Codex to review code changes.
 The user may specify what to review:
 - "uncommitted" or "uncommitted changes" - review all uncommitted changes (default)
 - "staged" or "staged files" - review only staged changes
-- "last commit" or "--last-commit" - review the last commit
+- "last commit" - review the last commit
 
 ## Instructions
 
-1. Check if `codex` CLI is installed. If not, tell the user to install it:
+1. Check if `codex` CLI is installed:
+   ```bash
+   which codex
+   ```
+   If not installed, tell the user:
    ```
    npm install -g @openai/codex
    codex auth
