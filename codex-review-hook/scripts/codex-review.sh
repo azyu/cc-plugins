@@ -47,20 +47,23 @@ EOF
     exit 0
 fi
 
-# Extract only the review comment (after "Review comment:" line)
-REVIEW_COMMENT=$(echo "$REVIEW_OUTPUT" | sed -n '/Review comment:/,$p' | tail -n +2)
+# Extract only the final review (last "codex" block)
+# The output format has "codex\n<review text>" at the end
+REVIEW_COMMENT=$(echo "$REVIEW_OUTPUT" | tac | sed -n '1,/^codex$/p' | tac | tail -n +2)
 
 if [ -z "$REVIEW_COMMENT" ]; then
-    # No review comment found, use full output
-    REVIEW_COMMENT="$REVIEW_OUTPUT"
+    # Fallback: try to get last non-empty lines
+    REVIEW_COMMENT=$(echo "$REVIEW_OUTPUT" | tail -5)
 fi
 
-# Escape for JSON
-ESCAPED_COMMENT=$(echo "$REVIEW_COMMENT" | jq -Rs '.')
+# Clean up the comment - remove quotes if wrapped
+REVIEW_COMMENT=$(echo "$REVIEW_COMMENT" | sed 's/^"//;s/"$//')
 
-# Return system message with review
+# Return system message with review (properly escaped)
+ESCAPED_COMMENT=$(printf '%s' "$REVIEW_COMMENT" | jq -Rs '.')
+
 cat << EOF
 {
-    "systemMessage": "[codex-review-hook] Code Review Result:\n\n${ESCAPED_COMMENT}"
+    "systemMessage": "[codex-review-hook] Code Review:\n\n${ESCAPED_COMMENT}"
 }
 EOF
