@@ -1,6 +1,5 @@
 #!/bin/bash
-# codex-review.sh
-# Code review with OpenAI Codex
+# codex-review.sh - Code review with OpenAI Codex
 
 set -e
 
@@ -11,35 +10,38 @@ REVIEW_TYPE="uncommitted"
 COMMIT_COUNT=1
 CUSTOM_PROMPT=""
 
-# Convert word numbers to digits
+# Convert word numbers to digits (returns empty string if not recognized)
 word_to_number() {
     case "$1" in
-        one|1) echo 1 ;;
-        two|2) echo 2 ;;
-        three|3) echo 3 ;;
-        four|4) echo 4 ;;
-        five|5) echo 5 ;;
-        six|6) echo 6 ;;
-        seven|7) echo 7 ;;
-        eight|8) echo 8 ;;
-        nine|9) echo 9 ;;
-        ten|10) echo 10 ;;
+        one) echo 1 ;;
+        two) echo 2 ;;
+        three) echo 3 ;;
+        four) echo 4 ;;
+        five) echo 5 ;;
+        six) echo 6 ;;
+        seven) echo 7 ;;
+        eight) echo 8 ;;
+        nine) echo 9 ;;
+        ten) echo 10 ;;
+        [1-9]|10) echo "$1" ;;
         *) echo "" ;;
     esac
 }
 
-# Collect all arguments for parsing
-ARGS=("$@")
-ARGS_STR="${ARGS[*]}"
-
-# Check for "last N commit(s)" pattern first
-if [[ "$ARGS_STR" =~ ^last[[:space:]]+([a-z0-9]+)[[:space:]]+(commit|commits)$ ]]; then
-    NUM=$(word_to_number "${BASH_REMATCH[1]}")
-    if [[ -n "$NUM" ]]; then
-        REVIEW_TYPE="commits"
-        COMMIT_COUNT="$NUM"
-        set -- # Clear remaining args
+# Parse "last [N] commit[s]" pattern from full argument string
+parse_last_commits() {
+    local args_str="$*"
+    if [[ "$args_str" =~ ^last[[:space:]]+([a-z0-9]+)[[:space:]]+(commit|commits)$ ]]; then
+        word_to_number "${BASH_REMATCH[1]}"
     fi
+}
+
+# Check for "last N commit(s)" pattern first (handles multi-word arguments)
+COMMIT_NUM=$(parse_last_commits "$@")
+if [[ -n "$COMMIT_NUM" ]]; then
+    REVIEW_TYPE="commits"
+    COMMIT_COUNT="$COMMIT_NUM"
+    set --
 fi
 
 # Parse remaining arguments
@@ -47,16 +49,10 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         -m|--model)
             MODEL="$2"
-            REASONING=""  # Don't set reasoning for custom models
+            REASONING=""
             shift 2
             ;;
-        staged)
-            # Note: codex --uncommitted reviews all changes (staged + unstaged + untracked)
-            # There's no staged-only option in codex CLI
-            REVIEW_TYPE="uncommitted"
-            shift
-            ;;
-        "last commit"|last-commit|--last-commit)
+        last-commit|--last-commit)
             REVIEW_TYPE="commits"
             COMMIT_COUNT=1
             shift
@@ -67,15 +63,8 @@ while [[ $# -gt 0 ]]; do
                 COMMIT_COUNT=1
                 shift 2
             else
-                NUM=$(word_to_number "$2")
-                if [[ -n "$NUM" && ( "$3" == "commit" || "$3" == "commits" ) ]]; then
-                    REVIEW_TYPE="commits"
-                    COMMIT_COUNT="$NUM"
-                    shift 3
-                else
-                    CUSTOM_PROMPT="$CUSTOM_PROMPT $1"
-                    shift
-                fi
+                CUSTOM_PROMPT="$CUSTOM_PROMPT $1"
+                shift
             fi
             ;;
         uncommitted)
@@ -83,11 +72,10 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         -*)
-            # Unknown option, skip
+            echo "Warning: Unknown option '$1' ignored" >&2
             shift
             ;;
         *)
-            # Custom prompt
             CUSTOM_PROMPT="$CUSTOM_PROMPT $1"
             shift
             ;;
@@ -95,56 +83,45 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Trim whitespace from custom prompt
-CUSTOM_PROMPT=$(echo "$CUSTOM_PROMPT" | xargs)
+CUSTOM_PROMPT="${CUSTOM_PROMPT## }"
+CUSTOM_PROMPT="${CUSTOM_PROMPT%% }"
 
-# Check if codex is installed
+# Verify codex is installed
 if ! command -v codex &> /dev/null; then
     echo "Error: OpenAI Codex CLI is not installed."
-    echo ""
-    echo "To install:"
-    echo "  npm install -g @openai/codex"
-    echo "  codex auth"
+    echo "To install: npm install -g @openai/codex && codex auth"
     exit 1
 fi
 
 # Build model options
 MODEL_OPTS="-m $MODEL"
-if [[ -n "$REASONING" ]]; then
-    MODEL_OPTS="$MODEL_OPTS -c model_reasoning_effort=\"$REASONING\""
+[[ -n "$REASONING" ]] && MODEL_OPTS="$MODEL_OPTS -c model_reasoning_effort=\"$REASONING\""
+
+# Auto-fallback to last commit if no uncommitted changes
+if [[ "$REVIEW_TYPE" == "uncommitted" ]] && [[ -z "$(git status --short 2>/dev/null)" ]]; then
+    echo "No uncommitted changes found. Reviewing last commit instead."
+    REVIEW_TYPE="commits"
+    COMMIT_COUNT=1
 fi
 
-# Check for uncommitted changes if reviewing uncommitted
-if [[ "$REVIEW_TYPE" == "uncommitted" ]]; then
-    CHANGES=$(git status --short 2>/dev/null || echo "")
-    if [[ -z "$CHANGES" ]]; then
-        echo "No uncommitted changes found. Reviewing last commit instead."
-        echo ""
-        REVIEW_TYPE="commits"
-        COMMIT_COUNT=1
+# Execute review
+CODEX_FLAGS="$MODEL_OPTS --dangerously-bypass-approvals-and-sandbox"
+
+if [[ "$REVIEW_TYPE" == "commits" ]]; then
+    if [[ "$COMMIT_COUNT" -eq 1 ]]; then
+        echo "Reviewing last commit..."
+        COMMIT_REF="HEAD"
+    else
+        echo "Reviewing last $COMMIT_COUNT commits..."
+        COMMIT_REF="HEAD~$((COMMIT_COUNT-1))..HEAD"
     fi
-fi
 
-# Run the codex command based on review type
-case "$REVIEW_TYPE" in
-    commits)
-        if [[ "$COMMIT_COUNT" -eq 1 ]]; then
-            echo "Reviewing last commit..."
-            COMMIT_REF="HEAD"
-        else
-            echo "Reviewing last $COMMIT_COUNT commits..."
-            COMMIT_REF="HEAD~$((COMMIT_COUNT-1))..HEAD"
-        fi
-        echo ""
-        if [[ -n "$CUSTOM_PROMPT" ]]; then
-            eval "codex exec review --commit $COMMIT_REF \"$CUSTOM_PROMPT\" $MODEL_OPTS --dangerously-bypass-approvals-and-sandbox"
-        else
-            eval "codex exec review --commit $COMMIT_REF $MODEL_OPTS --dangerously-bypass-approvals-and-sandbox"
-        fi
-        ;;
-    *)
-        echo "Reviewing uncommitted changes..."
-        echo ""
-        # Note: codex doesn't support custom prompts with --uncommitted
-        eval "codex exec review --uncommitted $MODEL_OPTS --dangerously-bypass-approvals-and-sandbox"
-        ;;
-esac
+    if [[ -n "$CUSTOM_PROMPT" ]]; then
+        eval "codex exec review --commit $COMMIT_REF \"$CUSTOM_PROMPT\" $CODEX_FLAGS"
+    else
+        eval "codex exec review --commit $COMMIT_REF $CODEX_FLAGS"
+    fi
+else
+    echo "Reviewing uncommitted changes..."
+    eval "codex exec review --uncommitted $CODEX_FLAGS"
+fi
