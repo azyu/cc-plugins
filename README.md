@@ -1,6 +1,8 @@
-# Claude Plugins
+# CC Plugins
 
 A collection of plugins for Claude Code.
+
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
 
 ## Available Plugins
 
