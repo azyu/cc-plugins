@@ -23,6 +23,7 @@ codex auth
 ## Installation
 
 ```
+/plugin marketplace add https://github.com/jinto/cc-plugins.git
 /plugin install codex-review@cc-plugins
 ```
 
