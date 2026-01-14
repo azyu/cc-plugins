@@ -33,6 +33,12 @@ A collection of plugins for Claude Code.
 
 Default model: `gpt-5.2-codex` with `reasoning effort: high`
 
+To use a different model:
+```
+/codex-review -m o3
+/codex-review -m gpt-4
+```
+
 ## License
 
 MIT

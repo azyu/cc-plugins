@@ -12,6 +12,7 @@ The user may specify:
 - "staged" or "staged files" - review only staged changes
 - "last commit" - review the last commit
 - Any custom message - use as review prompt (e.g., "check for security issues")
+- "-m <model>" - use a specific model (e.g., "-m o3", "-m gpt-4")
 
 ## Instructions
 
