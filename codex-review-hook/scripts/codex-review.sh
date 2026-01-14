@@ -59,8 +59,8 @@ fi
 # Clean up the comment - remove quotes if wrapped
 REVIEW_COMMENT=$(echo "$REVIEW_COMMENT" | sed 's/^"//;s/"$//')
 
-# Build proper JSON using jq to handle escaping
-jq -n \
-    --arg msg "[Codex Review] $REVIEW_COMMENT" \
-    --arg sys "[codex-review-hook] Code Review:\n\n$REVIEW_COMMENT" \
-    '{message: $msg, systemMessage: $sys}'
+# Output review as systemMessage
+OUTPUT=$(jq -n --arg msg "[Codex Review] $REVIEW_COMMENT" '{systemMessage: $msg}')
+echo "$OUTPUT"
+
+exit 0
