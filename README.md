@@ -31,6 +31,8 @@ A collection of plugins for Claude Code.
 /codex-review check for security issues # Custom review prompt
 ```
 
+Default model: `gpt-5.2-codex` with `reasoning effort: high`
+
 ## License
 
 MIT
