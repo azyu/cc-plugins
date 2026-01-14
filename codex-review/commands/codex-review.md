@@ -23,9 +23,13 @@ The user may specify:
      codex auth
      ```
 
-2. Based on the argument, run the appropriate codex command (always use `-m gpt-5.2-codex -c model_reasoning_effort="high"`):
-   - For uncommitted/staged/no args: `codex exec review --uncommitted -m gpt-5.2-codex -c model_reasoning_effort="high" --dangerously-bypass-approvals-and-sandbox`
-   - For last commit: `codex exec review --commit HEAD -m gpt-5.2-codex -c model_reasoning_effort="high" --dangerously-bypass-approvals-and-sandbox`
-   - For custom message: `codex exec review --uncommitted "<user's message>" -m gpt-5.2-codex -c model_reasoning_effort="high" --dangerously-bypass-approvals-and-sandbox`
+2. Parse the arguments:
+   - If user specified `-m <model>`, use that model
+   - Otherwise, use default: `-m gpt-5.2-codex -c model_reasoning_effort="high"`
 
-3. Display the review results to the user.
+3. Run the appropriate codex command:
+   - For uncommitted/staged/no args: `codex exec review --uncommitted <model_options> --dangerously-bypass-approvals-and-sandbox`
+   - For last commit: `codex exec review --commit HEAD <model_options> --dangerously-bypass-approvals-and-sandbox`
+   - For custom message: `codex exec review --uncommitted "<user's message>" <model_options> --dangerously-bypass-approvals-and-sandbox`
+
+4. Display the review results to the user.
