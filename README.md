@@ -25,10 +25,10 @@ A collection of plugins for Claude Code.
 ## Usage
 
 ```
-/codex-review                    # Review uncommitted changes
-/codex-review uncommitted        # Review uncommitted changes
-/codex-review staged             # Review staged files
-/codex-review last commit        # Review the last commit
+/codex-review                           # Review uncommitted changes
+/codex-review staged                    # Review staged files
+/codex-review last commit               # Review the last commit
+/codex-review check for security issues # Custom review prompt
 ```
 
 ## License

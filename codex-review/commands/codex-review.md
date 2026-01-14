@@ -1,5 +1,5 @@
 ---
-description: Review code changes with OpenAI Codex. Use for uncommitted changes, staged files, or last commit.
+description: Review code changes with OpenAI Codex. Use for uncommitted changes, staged files, last commit, or custom review prompts.
 allowed-tools: Bash(codex:*), Bash(which:*)
 ---
 
@@ -7,10 +7,11 @@ Review code changes using OpenAI Codex.
 
 ## Arguments
 
-The user may specify what to review:
+The user may specify:
 - "uncommitted" or "uncommitted changes" - review all uncommitted changes (default)
 - "staged" or "staged files" - review only staged changes
 - "last commit" - review the last commit
+- Any custom message - use as review prompt (e.g., "check for security issues")
 
 ## Instructions
 
@@ -22,7 +23,8 @@ The user may specify what to review:
      ```
 
 2. Based on the argument, run the appropriate codex command:
-   - For uncommitted/staged changes: `codex exec review --uncommitted`
+   - For uncommitted/staged/no args: `codex exec review --uncommitted`
    - For last commit: `codex exec review --commit HEAD`
+   - For custom message: `codex exec review --uncommitted "<user's message>"`
 
 3. Display the review results to the user.
