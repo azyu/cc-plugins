@@ -1,0 +1,11 @@
+{
+  "name": "claude-plugins",
+  "owner": { "name": "jinto" },
+  "plugins": [
+    {
+      "name": "codex-review-hook",
+      "source": "./codex-review-hook",
+      "description": "Auto code review with OpenAI Codex before git commit"
+    }
+  ]
+}
