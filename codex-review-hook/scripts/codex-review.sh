@@ -59,11 +59,12 @@ fi
 # Clean up the comment - remove quotes if wrapped
 REVIEW_COMMENT=$(echo "$REVIEW_COMMENT" | sed 's/^"//;s/"$//')
 
-# Return system message with review (properly escaped)
+# Return both system message (for Claude) and message (for user display)
 ESCAPED_COMMENT=$(printf '%s' "$REVIEW_COMMENT" | jq -Rs '.')
 
 cat << EOF
 {
+    "message": "[Codex Review] ${ESCAPED_COMMENT}",
     "systemMessage": "[codex-review-hook] Code Review:\n\n${ESCAPED_COMMENT}"
 }
 EOF
