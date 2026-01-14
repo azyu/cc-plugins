@@ -19,7 +19,9 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         staged)
-            REVIEW_TYPE="staged"
+            # Note: codex --uncommitted reviews all changes (staged + unstaged + untracked)
+            # There's no staged-only option in codex CLI
+            REVIEW_TYPE="uncommitted"
             shift
             ;;
         "last commit"|last-commit|--last-commit)
@@ -95,15 +97,6 @@ case "$REVIEW_TYPE" in
             eval "codex exec review --commit HEAD $PROMPT_OPT $MODEL_OPTS --dangerously-bypass-approvals-and-sandbox"
         else
             eval "codex exec review --commit HEAD $MODEL_OPTS --dangerously-bypass-approvals-and-sandbox"
-        fi
-        ;;
-    staged)
-        echo "Reviewing staged changes..."
-        echo ""
-        if [[ -n "$PROMPT_OPT" ]]; then
-            eval "codex exec review --uncommitted $PROMPT_OPT $MODEL_OPTS --dangerously-bypass-approvals-and-sandbox"
-        else
-            eval "codex exec review --uncommitted $MODEL_OPTS --dangerously-bypass-approvals-and-sandbox"
         fi
         ;;
     *)

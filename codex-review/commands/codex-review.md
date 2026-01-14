@@ -13,7 +13,6 @@ ${CLAUDE_PLUGIN_ROOT}/scripts/codex-review.sh <arguments>
 ## Arguments
 
 - (no args) - review uncommitted changes, fallback to last commit if none
-- `staged` - review staged files only
 - `last commit` - review the last commit
 - `-m <model>` - use a specific model (e.g., `-m o3`)
 - Any other text - custom review prompt
@@ -22,7 +21,6 @@ ${CLAUDE_PLUGIN_ROOT}/scripts/codex-review.sh <arguments>
 
 ```
 /codex-review
-/codex-review staged
 /codex-review last commit
 /codex-review -m o3
 /codex-review check for security issues

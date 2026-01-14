@@ -15,7 +15,6 @@ codex auth
 
 ```
 /codex-review                           # Review uncommitted changes
-/codex-review staged                    # Review staged files
 /codex-review last commit               # Review the last commit
 /codex-review check for security issues # Custom review prompt
 ```
