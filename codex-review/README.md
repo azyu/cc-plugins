@@ -16,7 +16,8 @@ codex auth
 ```
 /codex-review                           # Review uncommitted changes
 /codex-review last commit               # Review the last commit
-/codex-review check for security issues # Custom review prompt
+/codex-review last 3 commits            # Review last 3 commits
+/codex-review last two commits          # Review last 2 commits
 ```
 
 ## Installation

@@ -27,7 +27,8 @@ A collection of plugins for Claude Code.
 ```
 /codex-review                           # Review uncommitted changes
 /codex-review last commit               # Review the last commit
-/codex-review check for security issues # Custom review prompt
+/codex-review last 3 commits            # Review last 3 commits
+/codex-review last two commits          # Review last 2 commits
 ```
 
 Default model: `gpt-5.2-codex` with `reasoning effort: high`
