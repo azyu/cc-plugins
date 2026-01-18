@@ -8,6 +8,7 @@ MODEL="gpt-5.2-codex"
 REASONING="high"
 REVIEW_TYPE="uncommitted"
 COMMIT_COUNT=1
+BASE_BRANCH=""
 CUSTOM_PROMPT=""
 
 # Convert word numbers to digits (returns empty string if not recognized)
@@ -36,11 +37,27 @@ parse_last_commits() {
     fi
 }
 
+# Parse "against <branch>" pattern from full argument string
+parse_against_branch() {
+    local args_str="$*"
+    if [[ "$args_str" =~ ^against[[:space:]]+([^[:space:]]+)$ ]]; then
+        echo "${BASH_REMATCH[1]}"
+    fi
+}
+
 # Check for "last N commit(s)" pattern first (handles multi-word arguments)
 COMMIT_NUM=$(parse_last_commits "$@")
 if [[ -n "$COMMIT_NUM" ]]; then
     REVIEW_TYPE="commits"
     COMMIT_COUNT="$COMMIT_NUM"
+    set --
+fi
+
+# Check for "against <branch>" pattern
+AGAINST_BRANCH=$(parse_against_branch "$@")
+if [[ -n "$AGAINST_BRANCH" ]]; then
+    REVIEW_TYPE="base"
+    BASE_BRANCH="$AGAINST_BRANCH"
     set --
 fi
 
@@ -50,6 +67,16 @@ while [[ $# -gt 0 ]]; do
         -m|--model)
             MODEL="$2"
             REASONING=""
+            shift 2
+            ;;
+        --base)
+            REVIEW_TYPE="base"
+            BASE_BRANCH="$2"
+            shift 2
+            ;;
+        against)
+            REVIEW_TYPE="base"
+            BASE_BRANCH="$2"
             shift 2
             ;;
         last-commit|--last-commit)
@@ -107,7 +134,14 @@ fi
 # Execute review
 CODEX_FLAGS="$MODEL_OPTS --dangerously-bypass-approvals-and-sandbox"
 
-if [[ "$REVIEW_TYPE" == "commits" ]]; then
+if [[ "$REVIEW_TYPE" == "base" ]]; then
+    echo "Reviewing current branch against $BASE_BRANCH..."
+    if [[ -n "$CUSTOM_PROMPT" ]]; then
+        eval "codex exec review --base \"$BASE_BRANCH\" $CODEX_FLAGS \"$CUSTOM_PROMPT\""
+    else
+        eval "codex exec review --base \"$BASE_BRANCH\" $CODEX_FLAGS"
+    fi
+elif [[ "$REVIEW_TYPE" == "commits" ]]; then
     if [[ "$COMMIT_COUNT" -eq 1 ]]; then
         echo "Reviewing last commit..."
         COMMIT_REF="HEAD"
@@ -117,7 +151,7 @@ if [[ "$REVIEW_TYPE" == "commits" ]]; then
     fi
 
     if [[ -n "$CUSTOM_PROMPT" ]]; then
-        eval "codex exec review --commit $COMMIT_REF \"$CUSTOM_PROMPT\" $CODEX_FLAGS"
+        eval "codex exec review --commit $COMMIT_REF $CODEX_FLAGS \"$CUSTOM_PROMPT\""
     else
         eval "codex exec review --commit $COMMIT_REF $CODEX_FLAGS"
     fi

@@ -15,6 +15,8 @@ ${CLAUDE_PLUGIN_ROOT}/scripts/codex-review.sh <arguments>
 - (no args) - review uncommitted changes, fallback to last commit if none
 - `last commit` - review the last commit
 - `last N commits` - review last N commits (e.g., `last 3 commits`, `last two commits`)
+- `against <branch>` - review current branch against target branch (PR-style review)
+- `--base <branch>` - same as `against <branch>`
 - `-m <model>` - use a specific model (e.g., `-m o3`)
 
 ## Examples
@@ -24,5 +26,7 @@ ${CLAUDE_PLUGIN_ROOT}/scripts/codex-review.sh <arguments>
 /codex-review last commit
 /codex-review last 3 commits
 /codex-review last two commits
-/codex-review -m o3
+/codex-review against main
+/codex-review --base develop
+/codex-review against main -m o3
 ```
